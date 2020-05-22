@@ -1,0 +1,98 @@
+<mat-toolbar class="mat-elevation-z8">
+    <mat-toolbar-row>
+        <button mat-icon-button style="outline: none !important" [matMenuTriggerFor]="menu"><mat-icon>menu</mat-icon></button>
+        <mat-menu #menu="matMenu">
+        <button mat-menu-item (click)="navigator('mysubmission')">My Submission</button>
+        <button mat-menu-item (click)="navigator('userlist')" *ngIf="isAdmin()">User List</button>
+        <button mat-menu-item (click)="navigator('userfiles')" *ngIf="isAdmin()">User Files</button>
+        <button mat-menu-item (click)="navigator('settings')" *ngIf="isAdmin()">Settings</button>
+        <button mat-menu-item (click)="navigator('resetpassword')" *ngIf="isAdmin()">Reset Password</button>
+        <button mat-menu-item (click)="navigator('downloadsection')" *ngIf="isAdmin()">Download Section</button>
+        <button mat-menu-item (click)="navigator('certificate')" *ngIf="isAdmin()">Upload Certificates</button>
+        </mat-menu>
+    <span class="fontS">{{userData.name}}</span>
+    <span class="example-spacer"></span>
+    <button mat-icon-button (click)="logOut()" title="Logout"><mat-icon>power_settings_new</mat-icon></button>
+    </mat-toolbar-row>
+</mat-toolbar>
+<br>
+<div class="container">
+    <div class="row">
+        <div class="col-sm-6">
+            <br>
+            <h4 class="text-center text-warning fontS">Registration Info</h4>
+            <br>
+            <div class="row fontS">
+                <div class="col-sm-4 text-info"><h5>Name:</h5></div>
+                <div class="col-sm-8"><h5> {{userData.name}} </h5></div>
+            </div>
+            <br>
+            <div class="row fontS">
+                <div class="col-sm-4 text-info"><h5>Username:</h5></div>
+                <div class="col-sm-8"><h5> {{userData.username}} </h5></div>
+            </div>
+            <br>
+            <div class="row fontS">
+                <div class="col-sm-4 text-info"><h5>Email ID:</h5></div>
+                <div class="col-sm-8"><h5> {{userData.email}} </h5></div>
+            </div>
+            <ng-container *ngIf="userData.itype == 'COLLEGE'">
+                <br>
+                <div class="row fontS">
+                    <div class="col-sm-4 text-info"><h5>Stream:</h5></div>
+                    <div class="col-sm-8"><h5> {{userData.stream}} </h5></div>
+                </div>
+            </ng-container>
+            <br>
+            <div class="row fontS">
+                <div class="col-sm-4 text-info"><h5>{{userData.itype == 'SCHOOL' ? 'Class' : 'Year'}}:</h5></div>
+                <div class="col-sm-8"><h5> {{userData.yoc}} </h5></div>
+            </div>
+            <br>
+            <div class="row fontS">
+                <div class="col-sm-4 text-info"><h5>Contact Number:</h5></div>
+                <div class="col-sm-8"><h5> {{userData.contact}} </h5></div>
+            </div>
+            <br>
+            <div class="row fontS">
+                <div class="col-sm-4 text-info"><h5>{{userData.itype == 'SCHOOL' ? 'School' : 'College'}} Name:</h5></div>
+                <div class="col-sm-8"><h5> {{userData.iname}} </h5></div>
+            </div>
+            <br>
+        </div>
+        <div class="col-sm-6">
+            <br>
+            <h4 class="text-center text-warning fontS">Change Password</h4>
+            <br>
+            <p class="fontS text-warning" *ngIf="isAdmin()">Since you are an admin, you can change your password from Reset Password Section only.</p>
+            <div class="row" *ngIf="!isAdmin()">
+                <div class="col-sm-2"></div>
+                <div class="col-sm-8">
+                    <form novalidate #changeF="ngForm" (submit)="changePassword($event)">
+                        <p>
+                            <mat-form-field appearance="outline" style="width: 100%;">
+                                <mat-label>New Password:</mat-label>
+                                <input matInput type="password" placeholder="Password" name="password" [(ngModel)]="newPassword" required />
+                            </mat-form-field>
+                        </p>
+                        <p>
+                            <mat-form-field appearance="outline" style="width: 100%;">
+                                <mat-label>Re-type New Password:</mat-label>
+                                <input matInput type="password" placeholder="Password Once Again" name="password2" [(ngModel)]="confirmNewPassword" required />
+                                <mat-hint color="warn" *ngIf="newPassword != confirmNewPassword"> Passwords do not match </mat-hint>
+                            </mat-form-field>
+                        </p>
+                        <button mat-raised-button color="primary" type="submit"
+                            [disabled]="changeF.form.invalid || newPassword != confirmNewPassword">Confirm</button>
+                    </form>
+                </div>
+                <div class="col-sm-2"></div>
+            </div>
+            <br>
+            <br>
+        </div>
+    </div>
+</div>
+<div class="loader-holder" *ngIf="loading">
+  <div class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+</div>

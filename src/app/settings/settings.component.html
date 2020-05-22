@@ -1,0 +1,83 @@
+<mat-toolbar class="mat-elevation-z8">
+    <mat-toolbar-row>
+        <button mat-icon-button style="outline: none !important" [matMenuTriggerFor]="menu"><mat-icon>menu</mat-icon></button>
+        <mat-menu #menu="matMenu">
+        <button mat-menu-item (click)="navigator('account')">My Account</button>
+        <button mat-menu-item (click)="navigator('userlist')" *ngIf="isAdmin()">User List</button>
+        <button mat-menu-item (click)="navigator('userfiles')" *ngIf="isAdmin()">User Files</button>
+        <button mat-menu-item (click)="navigator('mysubmission')" *ngIf="isAdmin()">My Submission</button>
+        <button mat-menu-item (click)="navigator('resetpassword')" *ngIf="isAdmin()">Reset Password</button>
+        <button mat-menu-item (click)="navigator('downloadsection')" *ngIf="isAdmin()">Download Section</button>
+        <button mat-menu-item (click)="navigator('certificate')" *ngIf="isAdmin()">Upload Certificates</button>
+        </mat-menu>
+    <span class="fontS">{{userData.name}}</span>
+    <span class="example-spacer"></span>
+    <button mat-icon-button (click)="logOut()" title="Logout"><mat-icon>power_settings_new</mat-icon></button>
+    </mat-toolbar-row>
+</mat-toolbar>
+<br>
+<div class="container" *ngIf="settings">
+    <form novalidate #settingForm="ngForm">
+        <div class="row">
+            <div class="col-sm-6">
+                <p>
+                    <mat-form-field appearance="outline" style="width: 100%;">
+                        <mat-label>Contest Title:</mat-label>
+                        <input matInput type="text" placeholder="Title" name="title" [(ngModel)]="settings.title" required />
+                    </mat-form-field>
+                </p>
+                <p>
+                    <mat-form-field appearance="outline" style="width: 100%;">
+                        <mat-label>Registration End Time:</mat-label>
+                        <input matInput type="datetime-local" placeholder="End Time" name="regEndTime" [(ngModel)]="settings.registration_ends" required />
+                    </mat-form-field>
+                </p>
+                <p>
+                    <mat-form-field appearance="outline" style="width: 100%;">
+                        <mat-label>Contest Start Time:</mat-label>
+                        <input matInput type="datetime-local" placeholder="Start Time" name="startTime" [(ngModel)]="settings.startTime" ngModelOptions="{timezone: 'Asia/Kolkata'}" required />
+                    </mat-form-field>
+                </p>
+                <p>
+                    <mat-form-field appearance="outline" style="width: 100%;">
+                        <mat-label>Contest End Time:</mat-label>
+                        <input matInput type="datetime-local" placeholder="End Time" name="endTime" [(ngModel)]="settings.endTime" required />
+                    </mat-form-field>
+                </p>
+                <p>
+                    <label class="btn btn-outline-success" for="fileInput" style="width: 100%">{{ bannerPhoto ? "Choose Other File" : "Choose File" }}
+                        <input type="file" hidden id="fileInput" accept="image/*"
+                            (change)="fileRead($event.target.files)">
+                    </label>
+                </p>
+                <p>{{ bannerPhoto ? 'File Chosen: ' + bannerPhoto.name : "No File Chosen" }}</p>
+                <br>
+                <br>
+        </div>
+        <div class="col-sm-6">
+            <img *ngIf="settings.banner != 'NA'" [src]="bannerUrl" style="width: 100%;" />
+            <h3 *ngIf="settings.banner == 'NA'" class="text-warning">No Banner Found</h3>
+            <br>
+            <br>
+        </div>
+    </div>
+    <div class="row" *ngIf="!loading">
+        <div class="col-sm-6">
+            <mat-label>Contest Description:</mat-label>
+            <angular-editor name="description" [(ngModel)]="settings.description" [config]="config"></angular-editor>
+        </div>
+        <div class="col-sm-6">
+            <h6 class="fontS text-warning">Preview of the Description:</h6>
+            <p [innerHTML]="settings.description"></p>
+        </div>
+    </div>
+    <button class="float-right" type="button" mat-raised-button color="primary" (click)="saveSettings(true,true)" [disabled]="settingForm.form.invalid || !bannerPhoto">Save All</button>
+    <button class="float-right" type="button" mat-raised-button color="primary" (click)="saveSettings(false,true)" style="margin-right: 10px;" [disabled]="settingForm.form.invalid">Save Settings</button>
+    <button class="float-right" type="button" mat-raised-button color="primary" (click)="saveSettings(true,false)" style="margin-right: 10px;" [disabled]="!bannerPhoto">Save Banner</button>
+    <br>
+    <br>
+</form>
+</div>
+<div class="loader-holder" *ngIf="loading">
+<div class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+</div>

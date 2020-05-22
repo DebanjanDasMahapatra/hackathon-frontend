@@ -1,0 +1,117 @@
+<mat-toolbar class="mat-elevation-z8">
+    <mat-toolbar-row>
+        <button mat-icon-button style="outline: none !important" [matMenuTriggerFor]="menu"><mat-icon>menu</mat-icon></button>
+        <mat-menu #menu="matMenu">
+        <button mat-menu-item (click)="navigator('account')">My Account</button>
+        <button mat-menu-item (click)="navigator('mysubmission')" *ngIf="isAdmin()">My Submission</button>
+        <button mat-menu-item (click)="navigator('userlist')" *ngIf="isAdmin()">User List</button>
+        <button mat-menu-item (click)="navigator('userfiles')" *ngIf="isAdmin()">User Files</button>
+        <button mat-menu-item (click)="navigator('settings')" *ngIf="isAdmin()">Settings</button>
+        <button mat-menu-item (click)="navigator('resetpassword')" *ngIf="isAdmin()">Reset Password</button>
+        <button mat-menu-item (click)="navigator('downloadsection')" *ngIf="isAdmin()">Download Section</button>
+        </mat-menu>
+    <span class="fontS">{{userData.name}}</span>
+    <span class="example-spacer"></span>
+    <button mat-icon-button (click)="logOut()" title="Logout"><mat-icon>power_settings_new</mat-icon></button>
+    </mat-toolbar-row>
+</mat-toolbar>
+<div class="container text-center">
+    <br>
+    <h3 class="text-center text-warning fontS">Certificate Panel</h3>
+    <small class="text-warning">Select a Name. Entire User information will be displayed beside the drop down to help Cross-Verify.<br>
+        Names are sorted. You can upload / Change / delete upto <b>5 certificates at a time.</b></small>
+    <br><br>
+    <h4 style="color: lime;">Upload / Change</h4>
+    <hr>
+    <form novalidate #changeP="ngForm" (submit)="uploadSubmission($event.target)" *ngIf="!loading">
+        <div class="row" *ngFor="let sub of submissions; let i=index">
+            <div class="col-sm-4" style="text-align: center !important;">
+                <p>
+                    <mat-form-field appearance="legacy" style="width: 100%;">
+                        <mat-label>Select User:</mat-label>
+                        <mat-select [name]="'sel'+i" [(ngModel)]="submissions[i].username" (selectionChange)="checkEverything(i)" required>
+                            <mat-option value=""> -- Select -- </mat-option>
+                            <mat-option *ngFor="let user of usersData" [value]="user.username"> {{user.name}} </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </p>
+                <br>
+            </div>
+            <div class="col-sm-4" style="text-align: left !important;">
+                <ng-container *ngIf="submissions[i].user">
+                    <h6>Name: {{submissions[i].user.name}}</h6>
+                    <h6>Username: {{submissions[i].user.username}}</h6>
+                    <h6>Email ID: {{submissions[i].user.email}}</h6>
+                    <h6>Contact: {{submissions[i].user.contact}}</h6>
+                    <h6 *ngIf="submissions[i].user.itype != 'SCHOOL'">Stream: {{submissions[i].user.stream}}</h6>
+                    <h6>{{submissions[i].user.itype == 'SCHOOL' ? 'Class' : 'Year'}}: {{submissions[i].user.yoc}}</h6>
+                    <h6>{{submissions[i].user.itype == 'SCHOOL' ? 'School' : 'College'}}: {{submissions[i].user.iname}}</h6>
+                </ng-container>
+                <h6 class="text-info" *ngIf="!submissions[i].user">Select a User... Details will appear here</h6>
+                <br>
+            </div>
+            <div class="col-sm-2" style="text-align: center !important;">
+                <label class="btn btn-outline-success" for="fileInput{{i}}" style="width: 100%">{{ submissions[i].file  ? "Choose Other File" : "Choose File" }}
+                    <input type="file" hidden id="fileInput{{i}}" accept="application/pdf"
+                        (change)="fileReadNew($event.target.files,i)" required>
+                </label>
+                <p>{{ submissions[i].file ? 'File Chosen: ' + submissions[i].file.name : "No File Chosen" }}</p>
+                <br>
+            </div>
+            <div class="col-sm-2" style="text-align: center !important;">
+                <button mat-raised-button color="warn" (click)="deleteSubFromArray(i)" type="button">Delete this Entry</button>
+                <br><br>
+            </div>
+        </div>
+        <button mat-raised-button (click)="addSubToArray()" [disabled]="submissions.length>4" type="button">{{submissions.length<=4 ? 'Add Upload Entry' : 'Max 5 uploads at a time'}}</button>
+        &nbsp;
+        <button mat-raised-button color="primary" [disabled]="submissions.length==0 || !everythingFine">Upload / Change ALL Certificates</button>
+    </form>
+    <br><br>
+    <h4 style="color: lime;">Delete</h4>
+    <hr>
+    <form novalidate #changeP="ngForm" (submit)="deleteSubmission($event.target)" *ngIf="!loading">
+        <div class="row" *ngFor="let sub of deletions; let i=index">
+            <div class="col-sm-1"></div>
+            <div class="col-sm-4" style="text-align: center !important;">
+                <p>
+                    <mat-form-field appearance="legacy" style="width: 100%;">
+                        <mat-label>Select User:</mat-label>
+                        <mat-select [name]="'sel2'+i" [(ngModel)]="deletions[i].username" (selectionChange)="checkEverything2(i)" required>
+                            <mat-option value=""> -- Select -- </mat-option>
+                            <ng-container *ngFor="let user of usersData">
+                                <mat-option *ngIf="user.uploaded" [value]="user.username"> {{user.name}} </mat-option>
+                            </ng-container>
+                        </mat-select>
+                    </mat-form-field>
+                </p>
+                <br>
+            </div>
+            <div class="col-sm-4" style="text-align: left !important;">
+                <ng-container *ngIf="deletions[i].user">
+                    <h6>Name: {{deletions[i].user.name}}</h6>
+                    <h6>Username: {{deletions[i].user.username}}</h6>
+                    <h6>Email ID: {{deletions[i].user.email}}</h6>
+                    <h6>Contact: {{deletions[i].user.contact}}</h6>
+                    <h6 *ngIf="deletions[i].user.itype != 'SCHOOL'">Stream: {{deletions[i].user.stream}}</h6>
+                    <h6>{{deletions[i].user.itype == 'SCHOOL' ? 'Class' : 'Year'}}: {{deletions[i].user.yoc}}</h6>
+                    <h6>{{deletions[i].user.itype == 'SCHOOL' ? 'School' : 'College'}}: {{deletions[i].user.iname}}</h6>
+                </ng-container>
+                <h6 class="text-info" *ngIf="!deletions[i].user">Select a User... Details will appear here</h6>
+                <br>
+            </div>
+            <div class="col-sm-2" style="text-align: center !important;">
+                <button mat-raised-button color="warn" (click)="deleteDelFromArray(i)" type="button">Delete this Entry</button>
+                <br><br>
+            </div>
+            <div class="col-sm-1"></div>
+        </div>
+        <button mat-raised-button (click)="addDelToArray()" [disabled]="deletions.length>4" type="button">{{deletions.length<=4 ? 'Add Delete Entry' : 'Max 5 deletions at a time'}}</button>
+        &nbsp;
+        <button mat-raised-button color="primary" [disabled]="deletions.length==0 || !everythingFine2">Delete ALL Certificates</button>
+    </form>
+</div>
+<br>
+<div class="loader-holder" *ngIf="loading">
+  <div class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+</div>

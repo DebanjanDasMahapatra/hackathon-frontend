@@ -1,0 +1,172 @@
+<br />
+<div class="container" *ngIf="!loading && registration">
+    <div class="row">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8">
+            <h2 class="text-warning text-center fontS">Registration</h2>
+            <h4 class="text-success text-center fontS">Open Till {{deadline}}</h4>
+            <br>
+            <form #registerForm="ngForm" (submit)="register($event.target)" novalidate>
+                <br>
+                <h3 class="text-info fontS">Personal Details:</h3>
+                <hr>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <p>
+                            <mat-form-field appearance="outline" style="width: 100%;">
+                                <mat-label>Full Name:</mat-label>
+                                <input matInput type="text" placeholder="Your Full Name" name="name" [(ngModel)]="user.name" required />
+                            </mat-form-field>
+                        </p>
+                    </div>
+                    <div class="col-sm-6">
+                        <p>
+                            <mat-form-field appearance="outline" style="width: 100%;">
+                                <mat-label>Your Email ID:</mat-label>
+                                <input matInput type="email" placeholder="Email ID" name="email" [(ngModel)]="user.email" (input)="isRedundant(false)" required />
+                                <mat-hint class="text-danger" *ngIf="errors.email"> This Email is taken </mat-hint>
+                            </mat-form-field>
+                        </p>
+                        <p>
+                            <mat-form-field appearance="outline" style="width: 100%;">
+                                <mat-label>Your Contact Number:</mat-label>
+                                <input matInput type="tel" placeholder="Contact Number" name="contact" [(ngModel)]="user.contact" required />
+                            </mat-form-field>
+                        </p>
+                    </div>
+                </div>
+                <br>
+                <h3 class="text-info fontS">Institution Details:</h3>
+                <hr>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <p>
+                            <label id="example-radio-group-label">Your Institution Type</label>
+                            <mat-radio-group class="example-radio-group" aria-label="Select an option" aria-labelledby="example-radio-group-label" name="type" [(ngModel)]="user.itype">
+                                <mat-radio-button class="example-radio-button" value="SCHOOL">School</mat-radio-button>
+                                <mat-radio-button class="example-radio-button" value="COLLEGE">College</mat-radio-button>
+                            </mat-radio-group>
+                        </p>
+                        <p *ngIf="user.itype == 'COLLEGE'">
+                            <mat-form-field appearance="outline" style="width: 100%;">
+                                <mat-label>Choose Your Year:</mat-label>
+                                <mat-select [(ngModel)]="user.yoc" name="year" [required]="user.itype == 'COLLEGE'">
+                                    <mat-option value=""> Your Year </mat-option>
+                                    <mat-option value="1st"> 1st </mat-option>
+                                    <mat-option value="2nd"> 2nd </mat-option>
+                                    <mat-option value="3rd"> 3rd </mat-option>
+                                    <mat-option value="4th"> 4th </mat-option>
+                                    <mat-option value="5th"> 5th </mat-option>
+                                    <mat-option value="Other"> Other </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </p>
+                        <p *ngIf="user.yoc == 'Other'">
+                            <mat-form-field appearance="outline" style="width: 100%;">
+                                <mat-label>Type Your Year:</mat-label>
+                                <input matInput type="text" placeholder="Your Year" name="year1" [(ngModel)]="temp" [required]="user.yoc == 'Other'" />
+                            </mat-form-field>
+                        </p>
+                        <p *ngIf="user.itype == 'SCHOOL'">
+                            <mat-form-field appearance="outline" style="width: 100%;">
+                                <mat-label>Choose Your Class:</mat-label>
+                                <mat-select [(ngModel)]="user.yoc" name="year" [required]="user.itype == 'SCHOOL'">
+                                    <mat-option value=""> Your Class </mat-option>
+                                    <mat-option value="12"> 12 </mat-option>
+                                    <mat-option value="11"> 11 </mat-option>
+                                </mat-select>
+                              </mat-form-field>
+                        </p>
+                    </div>
+                    <div class="col-sm-6">
+                        <p *ngIf="user.itype == 'COLLEGE'">
+                            <mat-form-field appearance="outline" style="width: 100%;">
+                                <mat-label>Your Stream:</mat-label>
+                                <input matInput type="text" placeholder="Your Stream" name="stream" [(ngModel)]="user.stream" [required]="user.itype == 'COLLEGE'" />
+                            </mat-form-field>
+                        </p>
+                        <p *ngIf="user.itype == 'SCHOOL'">
+                            <mat-form-field appearance="outline" style="width: 100%;">
+                                <mat-label>Your School Name:</mat-label>
+                                <input matInput type="text" placeholder="School Name" name="school" [(ngModel)]="user.iname" [required]="user.itype == 'SCHOOL'" />
+                            </mat-form-field>
+                        </p>
+                        <p *ngIf="user.itype == 'COLLEGE'">
+                            <mat-form-field appearance="outline" style="width: 100%;">
+                                <mat-label>Your College Name:</mat-label>
+                                <input matInput type="text" placeholder="College Name" name="college" [(ngModel)]="user.iname" [required]="user.itype == 'COLLEGE'" />
+                            </mat-form-field>
+                        </p>
+                    </div>
+                </div>
+                <br>
+                <h3 class="text-info fontS">Photo and Identity Card:</h3>
+                <hr>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <p>Upload Your Recent Photo:</p>
+                        <label class="btn btn-outline-success" for="fileInput" style="width: 100%">{{ photo ? "Choose Other File" : "Choose File" }}
+                            <input type="file" hidden id="fileInput" accept=".jpg"
+                                (change)="fileRead($event.target.files,true)" required>
+                        </label>
+                        <p>{{ photo ? 'File Chosen: ' + photo.name : "No File Chosen" }}</p>
+                    </div>
+                    <div class="col-sm-6">
+                        <p>Upload Photo of <span class="text-warning"> {{user.itype ? user.itype : 'School / College'}} </span> ID Card:</p>
+                        <label class="btn btn-outline-success" for="fileInput2" style="width: 100%">{{ idcard ? "Choose Other File" : "Choose File" }}
+                            <input type="file" hidden id="fileInput2" accept=".jpg"
+                                (change)="fileRead($event.target.files,false)" required>
+                        </label>
+                        <p>{{ idcard ? 'File Chosen: ' + idcard.name : "No File Chosen" }}</p>
+                    </div>
+                </div>
+                <br>
+                <h3 class="text-info fontS">Account Creation:</h3>
+                <hr>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <p>
+                            <mat-form-field appearance="outline" style="width: 100%;">
+                                <mat-label>Type a new Username:</mat-label>
+                                <input matInput type="text" placeholder="New Username" name="username" [(ngModel)]="user.username" (input)="isRedundant(true)" required />
+                                <mat-hint *ngIf="errors.username" class="text-danger"> This Username is taken </mat-hint>
+                            </mat-form-field>
+                        </p>
+                    </div>
+                    <div class="col-sm-6">
+                        <p>
+                            <mat-form-field appearance="outline" style="width: 100%;">
+                                <mat-label>Type in Your New Account Password:</mat-label>
+                                <input matInput type="password" placeholder="Password" name="password" (input)="compare()" [(ngModel)]="user.password" required />
+                            </mat-form-field>
+                        </p>
+                        <p>
+                            <mat-form-field appearance="outline" style="width: 100%;">
+                                <mat-label>Re-type New Account Password:</mat-label>
+                                <input matInput type="password" placeholder="Password Once Again" name="password2" (input)="compare()" [(ngModel)]="temp2" required />
+                                <mat-hint *ngIf="errors.password"> Passwords do not match </mat-hint>
+                            </mat-form-field>
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-4">
+                        <button mat-raised-button color="primary" type="submit"
+                            [disabled]="registerForm.form.invalid || errors.password || errors.email || errors.username">Register</button>
+                    </div>
+                    <div class="col-8">
+                        <p class="fontS text-center">Already Registered! <button mat-raised-button color="accent" routerLink="/home">Login</button></p>
+                    </div>
+                </div>
+                <br>
+            </form>
+        </div>
+        <div class="col-sm-2"></div>
+    </div>
+</div>
+
+<h1 class="display-4 lead text-center text-danger" *ngIf="!loading && !registration">Registration is Closed</h1>
+
+<div class="loader-holder" *ngIf="loading">
+    <div class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+</div>

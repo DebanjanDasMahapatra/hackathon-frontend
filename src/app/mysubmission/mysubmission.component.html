@@ -1,0 +1,77 @@
+<mat-toolbar class="mat-elevation-z8">
+    <mat-toolbar-row>
+        <button mat-icon-button style="outline: none !important" [matMenuTriggerFor]="menu"><mat-icon>menu</mat-icon></button>
+        <mat-menu #menu="matMenu">
+        <button mat-menu-item (click)="navigator('account')">My Account</button>
+        <button mat-menu-item (click)="navigator('userlist')" *ngIf="isAdmin()">User List</button>
+        <button mat-menu-item (click)="navigator('userfiles')" *ngIf="isAdmin()">User Files</button>
+        <button mat-menu-item (click)="navigator('settings')" *ngIf="isAdmin()">Settings</button>
+        <button mat-menu-item (click)="navigator('resetpassword')" *ngIf="isAdmin()">Reset Password</button>
+        <button mat-menu-item (click)="navigator('downloadsection')" *ngIf="isAdmin()">Download Section</button>
+        <button mat-menu-item (click)="navigator('certificate')" *ngIf="isAdmin()">Upload Certificates</button>
+    </mat-menu>
+    <span class="fontS">{{userData.name}}</span>
+    <span class="example-spacer"></span>
+    <button mat-icon-button (click)="logOut()" title="Logout"><mat-icon>power_settings_new</mat-icon></button>
+    </mat-toolbar-row>
+</mat-toolbar>
+<br>
+<div class="container">
+    <div class="row">
+        <div class="col-sm-6">
+            <br>
+            <h1 class="fontS display-4 text-center" *ngIf="!loading">{{settings.title}}</h1>
+            <hr>
+            <p class="fontS text-warning text-center" *ngIf="!loading">Competition Starts:<br><span class="text-success">{{settings.startTime}}</span></p>
+            <p class="fontS text-warning text-center" *ngIf="!loading">Competition Ends:<br><span class="text-success">{{settings.endTime}}</span></p>
+            <br>
+            <p *ngIf="!loading" [innerHTML]="settings.description"></p>
+            <br>
+            <h6 class="text-info fontS" *ngIf="!currentSubmission">Certificate Not Available Yet!!! Come Back Later :)</h6>
+            <a *ngIf="currentSubmission" [href]="currentSubmission" download oncontextmenu="return false;">Download Certificate (PDF)</a>
+            <br>
+        </div>
+        <div class="col-sm-6">
+        <br>
+        <img *ngIf="settings.banner != 'NA'" [src]="settings.banner" style="width: 100%;" />
+        <br>
+        
+        <p *ngIf="!started" class="text-success">Competition is yet to start...</p><br>
+        <p *ngIf="ended" class="text-danger">This Competition has ended</p>
+        <br>
+        <p class="text-warning" style="font-style: italic;" *ngIf="started && !ended">If you want to edit any Image, do not worry. Upload your new image. It will replace the existing one :)</p>
+        <br>
+        </div>
+    </div>
+    <ng-container *ngIf="started && !ended">
+        <div class="row" *ngFor="let imageSubmission of userData.submissions; let i=index">
+            <div class="col-sm-4">
+                <p class="fontS"> <span class="text-warning">Image {{i+1}}</span>: {{descriptions[i]}}</p>
+            </div>
+            <div class="col-sm-4" style="text-align: center !important;">
+                <label class="btn btn-outline-success" for="fileInput{{i}}" style="width: 100%">{{ submissions[i]  ? "Choose Other File" : "Choose File" }}
+                    <input type="file" hidden id="fileInput{{i}}" accept=".jpg"
+                        (change)="fileReadNew($event.target.files,i)" required>
+                </label>
+                <p>{{ submissions[i] ? 'File Chosen: ' + submissions[i].name : "No File Chosen" }}</p>
+                <button mat-raised-button color="primary" (click)="uploadSubmissionNew(i+1)" [disabled]="!submissions[i]">Upload</button>
+                <br><br>
+                <p class="text-{{currentSubmissions[i] ? 'warning' : 'success'}}">It will {{!currentSubmissions[i] ? 'submit a new' : 'replace the existing'}} image. </p>
+                <br>
+            </div>
+            <div class="col-sm-2" style="text-align: center !important;">
+                <h6 class="text-info fontS" *ngIf="!currentSubmissions[i]">Not Uploaded Yet</h6>
+                <a *ngIf="currentSubmissions[i]" [href]="prefix+currentSubmissions[i]" download oncontextmenu="return false;">Download Image</a>
+                <br><br>
+            </div>
+            <div class="col-sm-2" style="text-align: center !important;">
+                <h6 class="text-info fontS" *ngIf="!currentSubmissions[i]">Not Uploaded Yet</h6>
+                <button mat-raised-button color="warn" (click)="deleteSubmissionNew(i+1)"  *ngIf="currentSubmissions[i] && started && !ended">Delete Image</button>
+                <br><br>
+            </div>
+        </div>
+    </ng-container>
+</div>
+<div class="loader-holder" *ngIf="loading">
+<div class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+</div>
